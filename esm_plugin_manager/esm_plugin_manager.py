@@ -30,7 +30,7 @@ def read_plugin_information(pluginfile, recipe):
                             continue
                         functionlist = plugins_bare[module_type][module][submodule]
                         if workitem in functionlist:
-                            plugins[workitem] = {"module": module, 
+                            plugins[workitem] = {"module": module,
                                                  "submodule": submodule,
                                                  "type": module_type
                                                  }
@@ -41,17 +41,34 @@ def read_plugin_information(pluginfile, recipe):
                             break
                     if found:
                         break
-                if found: 
+                if found:
                     break
             if found:
                 break
 
+    attach_installed_plugins_to_all(plugins)
     return plugins
+
+def find_installed_plugins():
+    import pkg_resources
+
+    discovered_plugins = {
+            entry_point.name: {"callable": entry_point.load(), "type": "installed"}
+        for entry_point
+        in pkg_resources.iter_entry_points('esm_tools.plugins')
+    }
+    return discovered_plugins
+
+def attach_installed_plugins_to_all(plugins):
+    plugins.update(find_installed_plugins())
+
 
 def check_plugin_availability(plugins):
     something_missing = False
     for workitem in list(plugins.keys()):
         if plugins[workitem]["type"] == "core":
+            pass
+        elif plugin[workitem]["type"] == "installed":
             pass
         else:
             print ("Checking if function " + plugins[workitem]["module"] + "." +
@@ -63,7 +80,7 @@ def check_plugin_availability(plugins):
                     thismodule = importlib.util.module_from_spec(spec)
                     spec.loader.exec_module(thismodule)
             except:
-                print ("Couldn't import " + plugins[workitem]["module"] + " from " + plugins[workitem]["location"]) 
+                print ("Couldn't import " + plugins[workitem]["module"] + " from " + plugins[workitem]["location"])
                 something_missing = True
     if something_missing:
         sys.exit(-1)
@@ -75,6 +92,11 @@ def work_through_recipe(recipe, plugins, config):
             thismodule = __import__(plugins[workitem]["module"])
             submodule = getattr(thismodule, plugins[workitem]["submodule"])
             config = getattr(submodule, workitem)(config)
+        elif plugins[workitem]["type"] == "installed":
+            print("Installed plugin will be run!")
+            import pdb; pdb.set_trace()
+            config = plugins[workitem]["callable"](config)
+            sys.exit(-1)
         else:
             if sys.version_info >= (3, 5):
                 import importlib.util
