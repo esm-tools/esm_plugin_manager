@@ -45,4 +45,5 @@ setup(
     url='https://github.com/dbarbi/esm_plugin_manager',
     version='4.0.0',
     zip_safe=False,
+    entry_points = {"console_scripts": ["esm_plugins=esm_plugin_manager.cli:main"]}
 )
