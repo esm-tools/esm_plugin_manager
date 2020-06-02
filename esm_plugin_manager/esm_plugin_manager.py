@@ -87,7 +87,9 @@ def check_plugin_availability(plugins):
 
 
 def work_through_recipe(recipe, plugins, config):
-    for workitem in list(plugins.keys()):
+    for workitem in recipe['recipe']:
+        print(workitem)
+        print("-"*len(workitem))
         if plugins[workitem]["type"] == "core":
             thismodule = __import__(plugins[workitem]["module"])
             submodule = getattr(thismodule, plugins[workitem]["submodule"])
