@@ -68,7 +68,7 @@ def check_plugin_availability(plugins):
     for workitem in list(plugins.keys()):
         if plugins[workitem]["type"] == "core":
             pass
-        elif plugin[workitem]["type"] == "installed":
+        elif plugins[workitem]["type"] == "installed":
             pass
         else:
             print ("Checking if function " + plugins[workitem]["module"] + "." +
@@ -93,10 +93,8 @@ def work_through_recipe(recipe, plugins, config):
             submodule = getattr(thismodule, plugins[workitem]["submodule"])
             config = getattr(submodule, workitem)(config)
         elif plugins[workitem]["type"] == "installed":
-            print("Installed plugin will be run!")
-            import pdb; pdb.set_trace()
+            # print("Installed plugin will be run: ", workitem)
             config = plugins[workitem]["callable"](config)
-            sys.exit(-1)
         else:
             if sys.version_info >= (3, 5):
                 import importlib.util
