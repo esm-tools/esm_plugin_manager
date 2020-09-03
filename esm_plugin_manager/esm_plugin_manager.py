@@ -1,7 +1,8 @@
-# ESM Framework for organizing python code in plugins / yaml recipes
+""" ESM Framework for organizing python code in plugins / yaml recipes """
 
 import sys
 import esm_parser
+
 
 def read_recipe(recipefile, additional_dict):
     # recipefile = esm_runscripts.yaml
@@ -10,7 +11,9 @@ def read_recipe(recipefile, additional_dict):
     recipe = esm_parser.yaml_file_to_dict(recipefile)
     recipe.update(additional_dict)
     esm_parser.basic_choose_blocks(recipe, recipe)
-    esm_parser.recursive_run_function([], recipe, "atomic", esm_parser.find_variable, recipe, [], True)
+    esm_parser.recursive_run_function(
+        [], recipe, "atomic", esm_parser.find_variable, recipe, [], True
+    )
 
     return recipe
 
@@ -30,13 +33,20 @@ def read_plugin_information(pluginfile, recipe):
                             continue
                         functionlist = plugins_bare[module_type][module][submodule]
                         if workitem in functionlist:
-                            plugins[workitem] = {"module": module,
-                                                 "submodule": submodule,
-                                                 "type": module_type
-                                                 }
+                            plugins[workitem] = {
+                                "module": module,
+                                "submodule": submodule,
+                                "type": module_type,
+                            }
                             for extra in extra_info:
                                 if extra in plugins_bare[module_type][module]:
-                                    plugins[workitem].update({extra: plugins_bare[module_type][module][extra]})
+                                    plugins[workitem].update(
+                                        {
+                                            extra: plugins_bare[module_type][module][
+                                                extra
+                                            ]
+                                        }
+                                    )
                             found = True
                             break
                     if found:
@@ -49,15 +59,16 @@ def read_plugin_information(pluginfile, recipe):
     attach_installed_plugins_to_all(plugins)
     return plugins
 
+
 def find_installed_plugins():
     import pkg_resources
 
     discovered_plugins = {
-            entry_point.name: {"callable": entry_point.load(), "type": "installed"}
-        for entry_point
-        in pkg_resources.iter_entry_points('esm_tools.plugins')
+        entry_point.name: {"callable": entry_point.load(), "type": "installed"}
+        for entry_point in pkg_resources.iter_entry_points("esm_tools.plugins")
     }
     return discovered_plugins
+
 
 def attach_installed_plugins_to_all(plugins):
     plugins.update(find_installed_plugins())
@@ -71,25 +82,48 @@ def check_plugin_availability(plugins):
         elif plugins[workitem]["type"] == "installed":
             pass
         else:
-            print ("Checking if function " + plugins[workitem]["module"] + "." +
-                    plugins[workitem]["submodule"] + "." + workitem + " can be imported...")
+            print(
+                "Checking if function "
+                + plugins[workitem]["module"]
+                + "."
+                + plugins[workitem]["submodule"]
+                + "."
+                + workitem
+                + " can be imported..."
+            )
             try:
                 if sys.version_info >= (3, 5):
                     import importlib.util
-                    spec = importlib.util.spec_from_file_location(plugins[workitem]["module"], plugins[workitem]["location"] + "/" + plugins[workitem]["module"] + ".py")
+
+                    spec = importlib.util.spec_from_file_location(
+                        plugins[workitem]["module"],
+                        plugins[workitem]["location"]
+                        + "/"
+                        + plugins[workitem]["module"]
+                        + ".py",
+                    )
                     thismodule = importlib.util.module_from_spec(spec)
                     spec.loader.exec_module(thismodule)
             except:
-                print ("Couldn't import " + plugins[workitem]["module"] + " from " + plugins[workitem]["location"])
+                print(
+                    "Couldn't import "
+                    + plugins[workitem]["module"]
+                    + " from "
+                    + plugins[workitem]["location"]
+                )
                 something_missing = True
     if something_missing:
         sys.exit(-1)
 
 
 def work_through_recipe(recipe, plugins, config):
-    for workitem in recipe['recipe']:
+    if config.get("general", {}).get("debug_recipe", False):
+        import pdb
+
+        pdb.set_trace()
+    for workitem in recipe["recipe"]:
         print(workitem)
-        print("-"*len(workitem))
+        print("-" * len(workitem))
         if plugins[workitem]["type"] == "core":
             thismodule = __import__(plugins[workitem]["module"])
             submodule = getattr(thismodule, plugins[workitem]["submodule"])
@@ -100,10 +134,15 @@ def work_through_recipe(recipe, plugins, config):
         else:
             if sys.version_info >= (3, 5):
                 import importlib.util
-                spec = importlib.util.spec_from_file_location(plugins[workitem]["module"], plugins[workitem]["location"] + "/" + plugins[workitem]["module"] + ".py")
+
+                spec = importlib.util.spec_from_file_location(
+                    plugins[workitem]["module"],
+                    plugins[workitem]["location"]
+                    + "/"
+                    + plugins[workitem]["module"]
+                    + ".py",
+                )
                 thismodule = importlib.util.module_from_spec(spec)
                 spec.loader.exec_module(thismodule)
                 config = getattr(thismodule, workitem)(config)
     return config
-
-
