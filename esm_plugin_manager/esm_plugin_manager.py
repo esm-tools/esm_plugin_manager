@@ -122,8 +122,9 @@ def work_through_recipe(recipe, plugins, config):
 
         pdb.set_trace()
     for workitem in recipe["recipe"]:
-        print(workitem)
-        print("-" * len(workitem))
+        if config["general"]["verbose"]:
+            print(workitem)
+            print("-" * len(workitem))
         if plugins[workitem]["type"] == "core":
             thismodule = __import__(plugins[workitem]["module"])
             submodule = getattr(thismodule, plugins[workitem]["submodule"])
