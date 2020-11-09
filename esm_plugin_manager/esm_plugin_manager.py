@@ -5,7 +5,6 @@ import esm_parser
 
 
 def read_recipe(recipe, additional_dict):
-    recipe = recipefile
     recipe.update(additional_dict)
     esm_parser.basic_choose_blocks(recipe, recipe)
     esm_parser.recursive_run_function(
