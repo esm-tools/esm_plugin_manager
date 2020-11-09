@@ -4,11 +4,8 @@ import sys
 import esm_parser
 
 
-def read_recipe(recipefile, additional_dict):
-    # recipefile = esm_runscripts.yaml
-    # additional_dict = {job_type: compute}
-
-    recipe = esm_parser.yaml_file_to_dict(recipefile)
+def read_recipe(recipe, additional_dict):
+    recipe = recipefile
     recipe.update(additional_dict)
     esm_parser.basic_choose_blocks(recipe, recipe)
     esm_parser.recursive_run_function(
@@ -18,11 +15,10 @@ def read_recipe(recipefile, additional_dict):
     return recipe
 
 
-def read_plugin_information(pluginfile, recipe):
+def read_plugin_information(plugins_bare, recipe):
     # pluginfile = esm_plugins.yaml
     extra_info = ["location", "git-url"]
     plugins = {}
-    plugins_bare = esm_parser.yaml_file_to_dict(pluginfile)
     for workitem in recipe["recipe"]:
         found = False
         for module_type in ["core", "plugins"]:
