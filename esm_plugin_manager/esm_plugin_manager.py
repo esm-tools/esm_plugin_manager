@@ -2,9 +2,11 @@
 
 import sys
 import esm_parser
+from esm_parser import yaml_file_to_dict
 
-
-def read_recipe(recipe, additional_dict):
+def read_recipe(recipe, additional_dict, needs_parse):
+    if needs_parse:
+        recipe = yaml_file_to_dict(recipe)
     recipe.update(additional_dict)
     esm_parser.basic_choose_blocks(recipe, recipe)
     esm_parser.recursive_run_function(
@@ -14,8 +16,10 @@ def read_recipe(recipe, additional_dict):
     return recipe
 
 
-def read_plugin_information(plugins_bare, recipe):
+def read_plugin_information(plugins_bare, recipe, needs_parse):
     # pluginfile = esm_plugins.yaml
+    if needs_parse:
+        plugins_bare = yaml_file_to_dict(plugins_bare)
     extra_info = ["location", "git-url"]
     plugins = {}
     for workitem in recipe["recipe"]:
