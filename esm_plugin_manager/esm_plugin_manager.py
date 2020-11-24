@@ -4,7 +4,7 @@ import sys
 import esm_parser
 from esm_parser import yaml_file_to_dict
 
-def read_recipe(recipe, additional_dict, needs_parse):
+def read_recipe(recipe, additional_dict, needs_parse=True):
     if needs_parse:
         recipe = yaml_file_to_dict(recipe)
     recipe.update(additional_dict)
@@ -16,7 +16,7 @@ def read_recipe(recipe, additional_dict, needs_parse):
     return recipe
 
 
-def read_plugin_information(plugins_bare, recipe, needs_parse):
+def read_plugin_information(plugins_bare, recipe, needs_parse=True):
     # pluginfile = esm_plugins.yaml
     if needs_parse:
         plugins_bare = yaml_file_to_dict(plugins_bare)
@@ -121,7 +121,7 @@ def work_through_recipe(recipe, plugins, config):
 
         pdb.set_trace()
     for workitem in recipe["recipe"]:
-        if config["general"]["verbose"]:
+        if config["general"].get("verbose",False):
             print(workitem)
             print("-" * len(workitem))
         if plugins[workitem]["type"] == "core":
