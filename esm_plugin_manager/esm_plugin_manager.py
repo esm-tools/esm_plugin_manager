@@ -121,11 +121,11 @@ def work_through_recipe(recipe, plugins, config):
 
         pdb.set_trace()
     recipes = recipe["recipe"]
-    for index, workitem in enumerate(recipes):
+    for index, workitem in enumerate(recipes, start=1):
         if config["general"].get("verbose",False):
             # diagnostic message of which recipe step is being executed
             message = (f'::: Executing the step:  {workitem}    '
-            f'(step [{index+1}/{len(recipes)}] of the job:  '
+            f'(step [{index}/{len(recipes)}] of the job:  '
             f'{recipe["job_type"]})')
 
             print()
