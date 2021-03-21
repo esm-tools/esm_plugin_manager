@@ -120,10 +120,18 @@ def work_through_recipe(recipe, plugins, config):
         import pdb
 
         pdb.set_trace()
-    for workitem in recipe["recipe"]:
+    recipes = recipe["recipe"]
+    for index, workitem in enumerate(recipes, start=1):
         if config["general"].get("verbose",False):
-            print(workitem)
-            print("-" * len(workitem))
+            # diagnostic message of which recipe step is being executed
+            message = (f'::: Executing the step:  {workitem}    '
+            f'(step [{index}/{len(recipes)}] of the job:  '
+            f'{recipe["job_type"]})')
+
+            print()
+            print("=" * len(message))
+            print(message)
+            print("=" * len(message))
         if plugins[workitem]["type"] == "core":
             thismodule = __import__(plugins[workitem]["module"])
             submodule = getattr(thismodule, plugins[workitem]["submodule"])
