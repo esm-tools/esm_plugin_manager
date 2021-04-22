@@ -81,15 +81,16 @@ def check_plugin_availability(plugins):
         elif plugins[workitem]["type"] == "installed":
             pass
         else:
-            print(
-                "Checking if function "
-                + plugins[workitem]["module"]
-                + "."
-                + plugins[workitem]["submodule"]
-                + "."
-                + workitem
-                + " can be imported..."
-            )
+            if config["general"].get("debug",False):
+                print(
+                    "Checking if function "
+                    + plugins[workitem]["module"]
+                    + "."
+                    + plugins[workitem]["submodule"]
+                    + "."
+                    + workitem
+                    + " can be imported..."
+                )
             try:
                 if sys.version_info >= (3, 5):
                     import importlib.util
@@ -104,12 +105,13 @@ def check_plugin_availability(plugins):
                     thismodule = importlib.util.module_from_spec(spec)
                     spec.loader.exec_module(thismodule)
             except:
-                print(
-                    "Couldn't import "
-                    + plugins[workitem]["module"]
-                    + " from "
-                    + plugins[workitem]["location"]
-                )
+                if config["general"].get("debug",False):
+                    print(
+                        "Couldn't import "
+                        + plugins[workitem]["module"]
+                        + " from "
+                        + plugins[workitem]["location"]
+                    )
                 something_missing = True
     if something_missing:
         sys.exit(-1)
@@ -121,7 +123,7 @@ def work_through_recipe(recipe, plugins, config):
 
         pdb.set_trace()
     for workitem in recipe["recipe"]:
-        if config["general"].get("verbose",False):
+        if config["general"].get("debug",False):
             print(workitem)
             print("-" * len(workitem))
         if plugins[workitem]["type"] == "core":
